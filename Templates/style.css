@@ -1,0 +1,147 @@
+/* 포트폴리오 PDF 렌더 스타일. build.py가 HTML에 그대로 삽입한다.
+   폰트는 OS별로 있는 것을 우선 사용 — 파일을 저장소에 넣지 않는다(라이선스). */
+
+:root {
+  --text: #1a1a1a;
+  --muted: #5a5a5a;
+  --accent: #1f5fbf;
+  --border: #dcdcdc;
+  --code-bg: #f5f5f5;
+}
+
+@page {
+  size: A4;
+  margin: 20mm 18mm;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo",
+               "Noto Sans KR", "Segoe UI", sans-serif;
+  color: var(--text);
+  font-size: 10.5pt;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+h1 {
+  font-size: 22pt;
+  margin: 0 0 4pt;
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 8pt;
+}
+
+h2 {
+  font-size: 15pt;
+  margin: 24pt 0 8pt;
+  color: var(--accent);
+}
+
+h3 {
+  font-size: 12pt;
+  margin: 16pt 0 6pt;
+}
+
+p {
+  margin: 6pt 0;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 10pt;
+  margin-bottom: 12pt;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 16pt 0;
+}
+
+/* 사례 1건 = 새 페이지에서 시작 */
+.case {
+  page-break-before: always;
+}
+
+.case-header {
+  margin-bottom: 4pt;
+}
+
+.case-header .case-meta {
+  color: var(--muted);
+  font-size: 9.5pt;
+}
+
+.case-tags span {
+  display: inline-block;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1pt 6pt;
+  margin: 2pt 4pt 2pt 0;
+  font-size: 8.5pt;
+  color: var(--muted);
+}
+
+code {
+  font-family: "Consolas", "D2Coding", "Cascadia Mono", monospace;
+  background: var(--code-bg);
+  padding: 1pt 3pt;
+  border-radius: 2px;
+  font-size: 9pt;
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8pt 10pt;
+  overflow-x: auto;
+  page-break-inside: avoid;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 8pt 0;
+  font-size: 9.5pt;
+}
+
+th, td {
+  border: 1px solid var(--border);
+  padding: 4pt 8pt;
+  text-align: left;
+}
+
+th {
+  background: var(--code-bg);
+}
+
+ul, ol {
+  margin: 4pt 0;
+  padding-left: 20pt;
+}
+
+img {
+  max-width: 100%;
+  page-break-inside: avoid;
+}
+
+/* 목차 */
+.toc ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.toc li {
+  padding: 3pt 0;
+  border-bottom: 1px dotted var(--border);
+}

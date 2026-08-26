@@ -3,5 +3,7 @@ Thumbs.db
 desktop.ini
 .DS_Store
 
-# 작업용 임시 디렉토리
-Temp/
+# Python
+__pycache__/
+*.pyc
+.venv/
