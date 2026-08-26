@@ -29,7 +29,7 @@ Portfolio/
 ├─ requirements.txt
 ├─ docs/design.md             # 이 문서
 ├─ Cases/                     # 사례 라이브러리 (핵심 자산)
-│   ├─ INDEX.md               #   전체 목록·태그·상태 (build.py가 생성)
+│   ├─ INDEX.md               #   전체 목록·태그 (build.py가 생성)
 │   └─ <slug>.md              #   사례 1건 = 파일 1개
 ├─ Templates/
 │   ├─ case.md                #   사례 작성 템플릿
@@ -61,7 +61,6 @@ frontmatter는 **기계가 읽는 색인표**다. 최종 PDF에는 출력되지 
 ---
 id: shadow-batching                 # 파일명 slug와 일치
 title: 모바일 동적 그림자 렌더 비용 62% 절감
-status: draft                       # draft | review | ready
 summary: 한 줄 요약. 목차와 매칭 근거에 그대로 쓰임. 대표 숫자를 포함할 것
 project: 트릭컬 리바이브 전투 클라이언트
 role: 클라이언트 프로그래머
@@ -73,7 +72,6 @@ skills: [프로파일링, 셰이더, 배칭]    # JD 매칭 2차 축
 sources:                            # 출처. 파일 경로 또는 URL
   - Sources/포트폴리오260327.pdf p.12-14
   - https://github.com/jidungg/...
-confidence: high                    # high | medium | low. 압박 면접 방어 가능성
 pages: 2                            # 예상 분량. 빌드 시 총량 관리용
 ---
 ```
@@ -100,45 +98,41 @@ STAR 대신 다음 5단 구성을 쓴다.
 
 '장단점'을 별도로 두는 이유: 자기 구현의 한계를 말할 수 있는 지원자는 드물다. 단점 칸이 비어 있으면 면접관은 그 지점부터 판다.
 
-## 5. 사례 상태 머신
+## 5. 게이트를 두지 않는다
 
-```
-draft ──작성 완료──▶ review ──/review-case 통과──▶ ready
-                        ▲                          │
-                        └──── 심사 탈락 ────────────┘
-```
+초기 설계에는 `draft → review → ready` 상태 머신과 승격 심사가 있었지만 걷어냈다. 사례를 한 편 쓸 때마다 심사·승격이라는 절차가 따라붙어 실제 작업보다 절차가 무거워졌기 때문이다.
 
-**`ready`인 사례만 빌드에 올라간다.** 검증되지 않은 사례가 마감에 쫓겨 들어가는 것을 구조적으로 막기 위함이다.
+지금은 이렇다.
 
-`ready` 승격 조건:
+- 사례를 쓸 때는 **사례만 쓴다.** 심사·예상 질문·다음 단계 제안을 알아서 이어붙이지 않는다.
+- 검토가 필요하면 사용자가 `/critique-case`로 **요청할 때만** 한다.
+- `build.py validate`는 두 단계로 알려준다. `x`(오류)는 실제로 깨진 것 — 빠진 frontmatter 필드, 파일명과 어긋난 id, 없는 이미지. 이것만 렌더링을 막는다. `!`(경고)는 "아직 안 채웠네" 수준 — 섹션 누락, 정량 근거 없음, 단점 미기재. 아무것도 막지 않는다.
 
-1. '대안 비교' 섹션에 탈락시킨 대안이 최소 1개 적혀 있을 것
-2. '장단점'의 단점이 비어 있지 않을 것
-3. 수치가 있다면 측정 조건이 함께 있을 것 (수치가 없어도 승격은 가능하나 경고가 남는다)
-4. `sources:`가 비어 있지 않을 것
-5. 압박 질문 6개에 답변 가능할 것 (사용자와 문답으로 확인)
+품질은 게이트가 아니라 `/critique-case`와 `/audit`으로, 사용자가 원할 때 본다.
 
 ## 6. 작업 진입점
 
 ### `/new-case <주제>`
 
-소스 확인(`Sources/`·GitHub·Notion 등) → 질문으로 내용을 캐냄 → 초안 작성 → `status: draft`.
+소스 확인(`Sources/`·GitHub·Notion 등) → 질문으로 내용을 캐냄 → 사례 작성. 거기서 끝낸다.
 
 소스에 없는 수치나 기술을 채워 넣지 않는다. 모르는 것은 사용자에게 묻는다.
 
-### `/review-case <id>`
+### `/critique-case <id>`
 
-채용 담당자 시점의 압박 심사. 템플릿 규약 검사 → 면접관 질문 6개 → 답변이 부실한 지점 지적 → 통과 시 `ready` 승격.
+채용 담당자 시점의 비판적 검토. 형식 확인 → **그 사례의 실제 내용에서** 약한 지점을 찾아 질문 → 부실한 곳 지적.
 
-작성과 심사를 분리하는 이유는 심사가 무뎌지는 것을 막기 위함이다.
+미리 정해둔 질문 목록은 두지 않는다. 고정된 질문지는 사례가 달라져도 같은 것만 묻게 되어 금방 무뎌진다.
+
+작성과 검토를 분리하는 이유는 쓴 사람의 눈으로는 자기 글의 구멍이 안 보이기 때문이다.
 
 ### `/audit`
 
 사례 라이브러리 건강검진. 두 층으로 본다.
 
-**형식 점검** — frontmatter 필수 필드 누락, 배경/구현/장단점/대안 비교 섹션이 빈 채로 `ready`인 사례, 빈 `sources:`, 존재하지 않는 이미지 참조. 정량 근거 없음·단점 서술 없음·회고 없음은 경고로만 표시하고 빌드를 막지 않는다.
+**형식 점검** — `build.py validate` 결과를 그대로 보고한다. 오류(`x`)와 경고(`!`)를 구분해서 보여준다.
 
-**전략 점검** — 도메인별 커버리지, 한 프로젝트 편중, 특정 언어·엔진 사례 부재, `confidence: low`인데 `ready`인 사례.
+**전략 점검** — 도메인별 커버리지, 한 프로젝트 편중, 특정 언어·엔진 사례 부재, 경고가 남아 있는 미완성 사례.
 
 목적은 JD가 오기 전에 구멍을 찾는 것이다. 라이브러리에 없는 것은 고를 수 없고, 마감 이틀 전에 발견하면 그 회사는 포기하게 된다.
 
@@ -146,7 +140,7 @@ draft ──작성 완료──▶ review ──/review-case 통과──▶ rea
 
 1. JD를 받아 `Applications/<YYYY-MM-DD-회사-포지션>/jd.md`에 저장
 2. JD를 자격요건·우대사항·주요업무로 분해하고 태그로 정규화
-3. `ready` 사례들의 frontmatter를 스캔해 후보를 추림
+3. 사례들의 frontmatter를 스캔해 후보를 추림
 4. 후보 본문을 읽고 매칭 판단
 5. **선별안을 제시하고 승인을 받는다** (자동으로 PDF를 뽑지 않는다)
 6. `manifest.yaml` 기록 — 사례별 "왜 골랐는지" 포함
@@ -164,7 +158,7 @@ draft ──작성 완료──▶ review ──/review-case 통과──▶ rea
 - Markdown → HTML (`markdown` 패키지) + `Templates/style.css`
 - Chrome/Edge headless `--print-to-pdf`로 PDF 출력
 - `Cases/INDEX.md` 생성
-- 형식 검증 (frontmatter 필수 필드, 이미지 존재, `ready` 상태)
+- 형식 검증 (frontmatter 필수 필드, 이미지 존재, 섹션 구성)
 
 **하지 않는 일**
 
@@ -180,7 +174,7 @@ draft ──작성 완료──▶ review ──/review-case 통과──▶ rea
 
 1. `Sources/`는 읽기 전용. 원본을 수정하지 않는다
 2. **소스에 없는 수치·기술을 지어내지 않는다.** 모르면 묻는다
-3. `ready`가 아닌 사례는 빌드에 넣지 않는다
+3. 요청하지 않은 절차(심사·예상 질문·다음 단계 제안)를 알아서 이어붙이지 않는다
 4. 숫자의 단일 출처는 본문 '대안 비교' 섹션
 5. 빌드 전 반드시 선별안 승인을 받는다
 6. 역할 설정: 베테랑 게임 프로그래머 + 신입 채용 담당자 + 조언자. **듣기 좋은 말보다 떨어지는 이유를 먼저 말한다**
@@ -225,7 +219,7 @@ Templates/case.md
 Templates/portfolio.md
 Templates/style.css
 tools/build.py
-.claude/commands/{new-case,review-case,audit,build}.md
+.claude/commands/{new-case,critique-case,audit,build}.md
 Cases/INDEX.md
 디렉토리 정리 — Archive → Applications/Archive, Input·Temp 삭제
 ```
@@ -241,3 +235,5 @@ Cases/INDEX.md
 | `Input/` 투입 디렉토리 | `Sources/`와 역할이 겹친다. JD는 `Applications/`로 직행 |
 | frontmatter `metrics` | `title`·`summary`·본문 '대안 비교'와 삼중 관리가 되어 불일치를 부른다 |
 | `Temp/` 스크래치 디렉토리 | 세션 스크래치 공간이 프로젝트 밖에 따로 있다 |
+| `draft → review → ready` 상태 머신 | 사례 한 편마다 심사·승격 절차가 따라붙어, 실제 작업보다 절차가 무거워졌다 (5장 참고) |
+| 고정된 압박 질문 목록 | 사례가 달라져도 같은 것만 묻게 되어 금방 무뎌진다. 질문은 그 사례를 읽고 만든다 |

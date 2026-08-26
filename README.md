@@ -26,7 +26,7 @@ Applications/          지원별 JD·manifest·완성 PDF, 과거 지원 이력(
 Assets/                사례에 들어가는 이미지
 Sources/               원본 자료 (읽기 전용)
 tools/build.py         조립·렌더·검증 스크립트
-.claude/commands/      /new-case, /review-case, /audit, /build
+.claude/commands/      /new-case, /critique-case, /audit, /build
 ```
 
 ## 빌드 도구
@@ -38,4 +38,4 @@ python tools/build.py render <application-dir>      # manifest.yaml -> PDF
 ```
 
 Claude Code에서 작업할 때는 스크립트를 직접 부르기보다 `/new-case`,
-`/review-case`, `/audit`, `/build` 슬래시 커맨드를 쓰는 것을 전제로 합니다.
+`/critique-case`, `/audit`, `/build` 슬래시 커맨드를 쓰는 것을 전제로 합니다.

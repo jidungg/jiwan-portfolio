@@ -49,10 +49,10 @@ TEMPLATES_DIR = REPO_ROOT / "Templates"
 APPLICATIONS_DIR = REPO_ROOT / "Applications"
 
 REQUIRED_FIELDS = [
-    "id", "title", "status", "summary", "project", "role", "period",
-    "engine", "lang", "domain", "skills", "sources", "confidence", "pages",
+    "id", "title", "summary", "project", "role", "period",
+    "engine", "lang", "domain", "skills", "sources", "pages",
 ]
-VALID_STATUS = {"draft", "review", "ready"}
+BODY_SECTIONS = ["배경", "구현", "장단점", "대안 비교", "회고"]
 MD_EXTENSIONS = ["fenced_code", "tables", "sane_lists"]
 
 
@@ -134,7 +134,12 @@ def find_image_refs(body: str) -> list[str]:
 
 
 def validate_case(case: Case) -> tuple[list[str], list[str]]:
-    """(errors, warnings)를 돌려준다. errors만 빌드를 막는다."""
+    """(errors, warnings)를 돌려준다.
+
+    errors는 실제로 깨진 것만 — 빠진 frontmatter 필드, 파일명과 어긋난 id,
+    존재하지 않는 이미지. 이것만 빌드를 막는다.
+    warnings는 "아직 안 채웠네" 수준의 알림이라 아무것도 막지 않는다.
+    """
     errors = list(case.issues)
     warnings: list[str] = []
     meta = case.meta
@@ -142,10 +147,6 @@ def validate_case(case: Case) -> tuple[list[str], list[str]]:
     for f in REQUIRED_FIELDS:
         if f not in meta or meta[f] in (None, "", []):
             errors.append(f"필수 필드 누락 또는 비어 있음: {f}")
-
-    status = meta.get("status")
-    if status is not None and status not in VALID_STATUS:
-        errors.append(f"status 값이 잘못됨: {status!r} (draft|review|ready 중 하나)")
 
     if "metrics" in meta:
         errors.append("frontmatter에 metrics 필드가 있습니다 — 숫자는 본문 '대안 비교' 섹션에만 적습니다")
@@ -163,27 +164,20 @@ def validate_case(case: Case) -> tuple[list[str], list[str]]:
             if not img_path2.exists():
                 errors.append(f"이미지 파일을 찾을 수 없습니다: {img}")
 
-    # ready 상태는 더 엄격하게 검사
-    if status == "ready":
-        for heading in ("배경", "구현", "장단점", "대안 비교"):
-            if not extract_section(case.body, heading):
-                errors.append(f"[ready] '## {heading}' 섹션이 없습니다")
+    for heading in BODY_SECTIONS:
+        if not extract_section(case.body, heading):
+            warnings.append(f"'## {heading}' 섹션이 없습니다")
 
-        comparison = extract_section(case.body, "대안 비교")
-        if comparison:
-            if len(comparison) < 30:
-                errors.append(
-                    "[ready] '## 대안 비교' 섹션이 너무 짧습니다 (탈락시킨 대안이 적혀 있는지 확인)"
-                )
-            elif not re.search(r"\d", comparison):
-                warnings.append("'## 대안 비교' 섹션에 정량 근거(숫자)가 없습니다")
+    comparison = extract_section(case.body, "대안 비교")
+    if comparison:
+        if len(comparison) < 30:
+            warnings.append("'## 대안 비교' 섹션이 너무 짧습니다 (탈락시킨 대안이 적혀 있는지 확인)")
+        elif not re.search(r"\d", comparison):
+            warnings.append("'## 대안 비교' 섹션에 정량 근거(숫자)가 없습니다")
 
-        pros_cons = extract_section(case.body, "장단점")
-        if pros_cons and not re.search(r"단점|한계|트레이드오프|아쉬운", pros_cons):
-            warnings.append("'## 장단점' 섹션에 단점·한계 서술이 안 보입니다")
-
-        if not extract_section(case.body, "회고"):
-            warnings.append("'## 회고' 섹션이 없습니다")
+    pros_cons = extract_section(case.body, "장단점")
+    if pros_cons and not re.search(r"단점|한계|트레이드오프|아쉬운", pros_cons):
+        warnings.append("'## 장단점' 섹션에 단점·한계 서술이 안 보입니다")
 
     return errors, warnings
 
@@ -194,24 +188,23 @@ def cmd_validate(_args) -> int:
         print("Cases/ 에 사례 파일이 없습니다.")
         return 0
 
-    had_ready_error = False
+    had_error = False
     for case in cases:
         errors, warnings = validate_case(case)
         cid = case.meta.get("id", case.path.stem)
-        status = case.meta.get("status", "?")
         if not errors and not warnings:
-            print(f"[{status}] {cid} — 이상 없음")
+            print(f"{cid} — 이상 없음")
             continue
 
-        print(f"\n[{status}] {cid} ({case.path.name})")
+        print(f"\n{cid} ({case.path.name})")
         for e in errors:
             print(f"  x {e}")
         for w in warnings:
             print(f"  ! {w}")
-        if errors and status == "ready":
-            had_ready_error = True
+        if errors:
+            had_error = True
 
-    return 1 if had_ready_error else 0
+    return 1 if had_error else 0
 
 
 # ---------------------------------------------------------------------------
@@ -225,20 +218,16 @@ def cmd_index(_args) -> int:
         "",
         "# 사례 색인",
         "",
-        "| id | status | title | domain | skills | confidence |",
-        "|---|---|---|---|---|---|",
+        "| id | title | project | domain | skills |",
+        "|---|---|---|---|---|",
     ]
-    status_order = {"ready": 0, "review": 1, "draft": 2}
-    cases_sorted = sorted(
-        cases, key=lambda c: (status_order.get(c.meta.get("status"), 9), c.meta.get("id", ""))
-    )
-    for c in cases_sorted:
+    for c in sorted(cases, key=lambda c: c.meta.get("id", "")):
         m = c.meta
         domain = ", ".join(m.get("domain") or [])
         skills = ", ".join(m.get("skills") or [])
         lines.append(
-            f"| {m.get('id', '?')} | {m.get('status', '?')} | {m.get('title', '?')} "
-            f"| {domain} | {skills} | {m.get('confidence', '?')} |"
+            f"| {m.get('id', '?')} | {m.get('title', '?')} | {m.get('project', '?')} "
+            f"| {domain} | {skills} |"
         )
 
     out = CASES_DIR / "INDEX.md"
@@ -347,11 +336,6 @@ def cmd_render(args) -> int:
         case_id = entry["id"] if isinstance(entry, dict) else entry
         reason = entry.get("reason") if isinstance(entry, dict) else None
         case = load_case_by_id(case_id)
-        if case.meta.get("status") != "ready":
-            raise SystemExit(
-                f"'{case_id}'는 status가 ready가 아닙니다 ({case.meta.get('status')}). "
-                "빌드에는 ready 사례만 넣을 수 있습니다."
-            )
         errors, warnings = validate_case(case)
         if errors:
             raise SystemExit(
