@@ -1,0 +1,237 @@
+# 포트폴리오 제작소 설계
+
+작성일: 2026-08-26
+
+## 1. 목적
+
+이 저장소는 완성된 포트폴리오를 보관하는 곳이 아니라, **JD를 입력하면 그에 맞는 포트폴리오 문서를 조립해내는 작업장**이다.
+
+- **자산**: 주제별 문제 해결 사례 파일들 (`Cases/`)
+- **입력**: 채용 공고(JD)
+- **출력**: JD의 자격요건·우대사항·주요업무에 대응하는 사례들을 골라 묶은 PDF
+
+## 2. 핵심 원칙
+
+**사례는 고정, 조립만 JD별로.** 사례 본문은 JD마다 다시 쓰지 않는다. 빌드는 선별과 재배열, 그리고 표지·목차 생성까지만 한다.
+
+이유: 매 지원마다 본문을 리라이트하면 사실이 조금씩 부풀려지고, 검증되지 않은 문장이 면접장에 들어간다. 사례를 고정하면 한 편 한 편을 끝까지 검증해두고 재사용할 수 있다.
+
+**판단은 사람과 AI가, 반복은 스크립트가.** JD 해석과 사례 매칭은 판단이므로 Claude가 하고, 조립·렌더링은 결정론적 스크립트가 한다. 같은 manifest면 항상 같은 PDF가 나온다.
+
+## 3. 디렉토리 구조
+
+```
+Portfolio/
+├─ CLAUDE.md                  # 작업 흐름 규약. 세션 시작 시 자동 로드
+├─ README.md                  # 저장소 소개 + 새 PC 셋업 절차
+├─ .gitignore
+├─ .gitattributes
+├─ requirements.txt
+├─ docs/design.md             # 이 문서
+├─ Cases/                     # 사례 라이브러리 (핵심 자산)
+│   ├─ INDEX.md               #   전체 목록·태그·상태 (build.py가 생성)
+│   └─ <slug>.md              #   사례 1건 = 파일 1개
+├─ Templates/
+│   ├─ case.md                #   사례 작성 템플릿
+│   ├─ portfolio.md           #   포트폴리오 골격 (표지·서문·목차·맺음)
+│   └─ style.css              #   PDF 렌더 스타일
+├─ Applications/              # 지원 관련 전부
+│   ├─ Archive/               #   과거 지원 이력
+│   └─ <YYYY-MM-DD-회사-포지션>/
+│       ├─ jd.md              #   JD 원문 (근거 보존)
+│       ├─ manifest.yaml      #   선택한 사례·순서·선택 이유
+│       └─ portfolio.pdf      #   최종 산출물 (커밋함)
+├─ Assets/                    # 사례에 들어가는 이미지·다이어그램
+├─ Sources/                   # 원본 자료. 읽기 전용
+├─ tools/build.py             # 조립·렌더
+└─ .claude/commands/          # 슬래시 커맨드 (저장소에 커밋 → 다중 PC 동기화)
+```
+
+`Sources/`를 읽기 전용으로 두는 이유는 출처 추적 때문이다. "이 숫자 어디서 나왔나"에 답할 수 있어야 한다.
+
+`Applications/`에 JD 원문과 manifest를 남기는 이유는 면접 직전 복기 때문이다. "이 회사에 무엇을 강조해서 냈는지"를 즉시 확인할 수 있어야 한다.
+
+## 4. 사례 파일 규격
+
+### frontmatter
+
+frontmatter는 **기계가 읽는 색인표**다. 최종 PDF에는 출력되지 않는다. 선별 속도와 정확도가 전부 여기서 나온다.
+
+```yaml
+---
+id: shadow-batching                 # 파일명 slug와 일치
+title: 모바일 동적 그림자 렌더 비용 62% 절감
+status: draft                       # draft | review | ready
+summary: 한 줄 요약. 목차와 매칭 근거에 그대로 쓰임. 대표 숫자를 포함할 것
+project: 트릭컬 리바이브 전투 클라이언트
+role: 클라이언트 프로그래머
+period: 2025-07 ~ 2025-08 (3주)
+engine: [Unity, URP]
+lang: [C#, HLSL]
+domain: [렌더링, 최적화]             # JD 매칭 1차 축
+skills: [프로파일링, 셰이더, 배칭]    # JD 매칭 2차 축
+sources:                            # 출처. 파일 경로 또는 URL
+  - Sources/포트폴리오260327.pdf p.12-14
+  - https://github.com/jidungg/...
+confidence: high                    # high | medium | low. 압박 면접 방어 가능성
+pages: 2                            # 예상 분량. 빌드 시 총량 관리용
+---
+```
+
+`metrics` 필드는 두지 않는다. 숫자의 단일 출처는 본문 '결과' 섹션이며, `title`·`summary`는 거기서 파생된 표현이다. 같은 숫자를 여러 곳에 적으면 하나만 고쳤을 때 문서 내부가 어긋나고, 그것은 기술 실수가 아니라 성실성 문제로 읽힌다.
+
+### 본문 구조
+
+STAR 대신 다음 6단 구성을 쓴다.
+
+| 섹션 | 내용 | 목적 |
+|---|---|---|
+| 상황 | 왜 이것이 문제였나 (2~3문장) | 맥락 없는 최적화는 자랑으로 읽힌다 |
+| 제약 | 타깃 기기·일정·기존 코드 | 제약이 없으면 난이도가 보이지 않는다 |
+| **접근** | **검토한 대안과 탈락 이유** | **변별력이 여기서 갈린다** |
+| 구현 | 핵심 구조 + 코드 20줄 이내 | 길면 읽히지 않는다 |
+| 결과 | 숫자 + 측정 조건 | 조건 없는 숫자는 의심받는다 |
+| 회고 | 지금 다시 하면 무엇을 다르게 할까 | 성장 가능성 신호 |
+
+'접근' 섹션을 필수로 두는 이유: 신입 포트폴리오 대다수가 "이런 기능을 구현했습니다"에 머물러 변별이 되지 않는다. 걸러지는 쪽은 "A안과 B안을 놓고 재봤고, 이 제약 때문에 B를 버렸다"가 적혀 있는 것들이다. 기술을 안다는 증거보다 판단할 줄 안다는 증거가 귀하다.
+
+## 5. 사례 상태 머신
+
+```
+draft ──작성 완료──▶ review ──/review-case 통과──▶ ready
+                        ▲                          │
+                        └──── 심사 탈락 ────────────┘
+```
+
+**`ready`인 사례만 빌드에 올라간다.** 검증되지 않은 사례가 마감에 쫓겨 들어가는 것을 구조적으로 막기 위함이다.
+
+`ready` 승격 조건:
+
+1. '접근' 섹션에 탈락시킨 대안이 최소 1개 적혀 있을 것
+2. '결과'에 숫자와 측정 조건이 함께 있을 것
+3. `sources:`가 비어 있지 않을 것
+4. 압박 질문 5개에 답변 가능할 것 (사용자와 문답으로 확인)
+
+## 6. 작업 진입점
+
+### `/new-case <주제>`
+
+소스 확인(`Sources/`·GitHub·Notion 등) → 질문으로 내용을 캐냄 → 초안 작성 → `status: draft`.
+
+소스에 없는 수치나 기술을 채워 넣지 않는다. 모르는 것은 사용자에게 묻는다.
+
+### `/review-case <id>`
+
+채용 담당자 시점의 압박 심사. 템플릿 규약 검사 → 면접관 질문 5개 → 답변이 부실한 지점 지적 → 통과 시 `ready` 승격.
+
+작성과 심사를 분리하는 이유는 심사가 무뎌지는 것을 막기 위함이다.
+
+### `/audit`
+
+사례 라이브러리 건강검진. 두 층으로 본다.
+
+**형식 점검** — frontmatter 필수 필드 누락, '접근' 섹션이 빈 채로 `ready`인 사례, 숫자 없는 '결과', 빈 `sources:`, 존재하지 않는 이미지 참조.
+
+**전략 점검** — 도메인별 커버리지, 한 프로젝트 편중, 특정 언어·엔진 사례 부재, `confidence: low`인데 `ready`인 사례.
+
+목적은 JD가 오기 전에 구멍을 찾는 것이다. 라이브러리에 없는 것은 고를 수 없고, 마감 이틀 전에 발견하면 그 회사는 포기하게 된다.
+
+### `/build`
+
+1. JD를 받아 `Applications/<YYYY-MM-DD-회사-포지션>/jd.md`에 저장
+2. JD를 자격요건·우대사항·주요업무로 분해하고 태그로 정규화
+3. `ready` 사례들의 frontmatter를 스캔해 후보를 추림
+4. 후보 본문을 읽고 매칭 판단
+5. **선별안을 제시하고 승인을 받는다** (자동으로 PDF를 뽑지 않는다)
+6. `manifest.yaml` 기록 — 사례별 "왜 골랐는지" 포함
+7. `build.py` 실행 → PDF
+8. **미충족 요구사항 리포트** — JD가 요구했으나 포트폴리오가 답하지 못한 항목
+
+8단계가 곧 면접 예상 질문이자 자기소개서에서 보완할 지점이다.
+
+## 7. build.py 사양
+
+**하는 일** (결정론적)
+
+- `manifest.yaml`을 읽어 지정된 순서대로 사례를 조립
+- `Templates/portfolio.md` 골격 적용 (표지·서문·목차·맺음)
+- Markdown → HTML (`markdown` 패키지) + `Templates/style.css`
+- Chrome/Edge headless `--print-to-pdf`로 PDF 출력
+- `Cases/INDEX.md` 생성
+- 형식 검증 (frontmatter 필수 필드, 이미지 존재, `ready` 상태)
+
+**하지 않는 일**
+
+판단. 사례 선택과 순서는 manifest에 적힌 대로만 따른다.
+
+**이식성 요건**
+
+- Chrome/Edge 실행 경로를 하드코딩하지 않는다. Windows·macOS·Linux 후보 경로를 순회 탐색하고, 실패 시 `CHROME_PATH` 환경변수로 지정 가능
+- 모든 경로는 저장소 루트 기준 상대경로
+- 의존성은 `requirements.txt`에 선언. 누락 시 설치 명령을 안내하고 중단
+
+## 8. 불변 규칙
+
+1. `Sources/`는 읽기 전용. 원본을 수정하지 않는다
+2. **소스에 없는 수치·기술을 지어내지 않는다.** 모르면 묻는다
+3. `ready`가 아닌 사례는 빌드에 넣지 않는다
+4. 숫자의 단일 출처는 본문 '결과' 섹션
+5. 빌드 전 반드시 선별안 승인을 받는다
+6. 역할 설정: 베테랑 게임 프로그래머 + 신입 채용 담당자 + 조언자. **듣기 좋은 말보다 떨어지는 이유를 먼저 말한다**
+
+2번이 가장 중요하다. 포트폴리오는 면접에서 검증받는 문서이므로, 지어낸 한 줄이 전체 신뢰를 무너뜨린다.
+
+## 9. 다중 PC 운용
+
+`CLAUDE.md`와 `.claude/commands/`를 **저장소 안에** 두고 커밋한다. 사용자 전역 `~/.claude/`가 아니다. 그래야 `git clone` 하는 순간 작업 흐름 전체가 따라온다.
+
+**폰트** — 맑은 고딕은 Windows 전용이므로 `style.css`에 대체 스택을 둔다.
+
+```css
+font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo",
+             "Noto Sans KR", sans-serif;
+```
+
+픽셀 단위로 동일한 출력이 필요하면 폰트 파일을 저장소에 넣어야 하지만, 라이선스 문제로 채택하지 않는다.
+
+**줄바꿈** — `.gitattributes`로 `.md`·`.py`·`.css`는 LF 통일, PDF·docx·zip은 binary 명시.
+
+**새 PC 셋업**
+
+```bash
+gh repo clone jidungg/jiwan-portfolio
+cd jiwan-portfolio
+py -m pip install -r requirements.txt
+```
+
+비공개 저장소이므로 각 PC에서 `gh auth login`이 한 번 필요하다.
+
+## 10. 구축 범위
+
+```
+CLAUDE.md
+README.md 개정
+.gitignore 개정 (Temp/ 제거)
+.gitattributes
+requirements.txt
+docs/design.md
+Templates/case.md
+Templates/portfolio.md
+Templates/style.css
+tools/build.py
+.claude/commands/{new-case,review-case,audit,build}.md
+Cases/INDEX.md
+디렉토리 정리 — Archive → Applications/Archive, Input·Temp 삭제
+```
+
+## 11. 검토했으나 채택하지 않은 것
+
+| 대안 | 탈락 이유 |
+|---|---|
+| JD별 본문 리라이트 | 사실 왜곡 위험. 검증된 사례를 고정하는 편이 안전 |
+| 태그 스코어링 자동 매칭 | JD 매칭은 미묘한 판단이라 점수 합산으로 뭉개진다. 사례 8~12개 규모에서 자동화 이득도 없다 |
+| 슬라이드형 PDF (PPTX) | 문서형이 git diff가 깔끔하고 사례 단위 수정이 빠르다 |
+| pandoc·LaTeX 툴체인 | 이 환경에 미설치. Chrome headless는 추가 설치가 거의 없다 |
+| `Input/` 투입 디렉토리 | `Sources/`와 역할이 겹친다. JD는 `Applications/`로 직행 |
+| frontmatter `metrics` | `title`·`summary`·본문 '결과'와 삼중 관리가 되어 불일치를 부른다 |
+| `Temp/` 스크래치 디렉토리 | 세션 스크래치 공간이 프로젝트 밖에 따로 있다 |
