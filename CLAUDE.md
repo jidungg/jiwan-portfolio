@@ -34,6 +34,23 @@
    필드를 만들지 않는다.
 5. `/build`에서 사례 선별안은 **반드시 사용자 승인 후** 렌더링으로 넘어간다.
 
+## 외부 소스 참고 규칙
+
+`Sources/URLs.txt`(GitHub·Notion 링크)와 `Sources/LocalProjectPaths.txt`(로컬 프로젝트
+경로)가 사례 재료의 출처 목록이다. 사례 작성 시 다음을 지킨다.
+
+- **GitHub URL을 1차 출처로 쓴다.** `LocalProjectPaths.txt`의 경로는 이 PC에서만
+  유효해서 다른 PC에서 세션을 열면 못 읽는다. 로컬 경로는 GitHub에 없는 최신 변경을
+  확인할 때만 보조로 쓴다. (예외: `Trickster` 로컬 폴더는 git 저장소가 아니라
+  압축 해제된 스냅샷이다 — 진짜 출처는 `github.com/jidungg/CopyTrickster`.)
+- **협업 프로젝트는 기여 범위를 사례에 명시한다.** `Untitled-Forge/Dogong`(팀 프로젝트),
+  `smileJiro/Project_DX11_PluckySquire`(협업자 계정 — 팀원·외부인)에서 사례를 쓸 때는
+  본인이 담당한 부분과 그렇지 않은 부분을 본문에 구분해서 쓴다. 팀 성과를 개인 성과로
+  뭉뚱그리지 않는다.
+- **Notion 이미지는 서명 URL이라 몇 분 내 만료된다.** 사례에 쓸 이미지는 발견 즉시
+  `Assets/`에 다운로드해 저장하고, 사례에는 그 로컬 경로만 남긴다. 만료되는 외부 URL을
+  `sources`에 그대로 남기지 않는다.
+
 ## 디렉토리
 
 | 경로 | 용도 |

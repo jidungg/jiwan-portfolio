@@ -1,0 +1,9 @@
+- Notion 포트폴리오 : https://geode-practice-6ee.notion.site/3c19a490f3d880048112c52d032a4c15?source=copy_link
+- Notion 최적화 사례 포트폴리오 : https://geode-practice-6ee.notion.site/3D-RPG-MapleStory2-3c19a490f3d88032988ff3b0fb1dc949?source=copy_link
+- CopyMaple2 프로젝트(메이플스토리2 모작) Github 레포 : https://github.com/jidungg/CopyMaple2
+- RTChess 프로젝트(Hyper Chess 모작) Github 레포 : https://github.com/jidungg/RTChess
+- Shipgend 프로젝트(Ship of Fools 모작) Github 레포 : https://github.com/jidungg/Shipgend
+- CopyTrickster 프로젝트(트릭스터 모작) Github 레포 : https://github.com/jidungg/CopyTrickster
+- ResourceMonitor 프로젝트 Github 레포 : https://github.com/jidungg/ResourceMonitor
+- Project_DX11_PluckySquire 프로젝트 (견습기사모험기 모작) Github 레포 : https://github.com/smileJiro/Project_DX11_PluckySquire
+-  Dogong 프로젝트 Github 레포 : https://github.com/Untitled-Forge/Dogong
