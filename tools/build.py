@@ -50,9 +50,10 @@ APPLICATIONS_DIR = REPO_ROOT / "Applications"
 
 REQUIRED_FIELDS = [
     "id", "title", "summary", "project", "role", "period",
-    "engine", "lang", "domain", "skills", "sources", "pages",
+    "engine", "lang", "domain", "skills", "sources",
 ]
-BODY_SECTIONS = ["배경", "구현", "장단점", "대안 비교", "회고"]
+# 없으면 경고하는 섹션. '회고'는 쓸 말이 있을 때만 넣는 선택 섹션이라 뺀다.
+BODY_SECTIONS = ["배경", "구현", "장단점", "대안 비교"]
 MD_EXTENSIONS = ["fenced_code", "tables", "sane_lists"]
 
 
@@ -179,6 +180,9 @@ def validate_case(case: Case) -> tuple[list[str], list[str]]:
     if pros_cons and not re.search(r"단점|한계|트레이드오프|아쉬운", pros_cons):
         warnings.append("'## 장단점' 섹션에 단점·한계 서술이 안 보입니다")
 
+    if "확인 필요" in case.body:
+        warnings.append("본문에 '확인 필요' 표시가 남아 있습니다 (사용자에게 물어볼 것)")
+
     return errors, warnings
 
 
@@ -256,10 +260,40 @@ def rewrite_relative_srcs(html: str, base_dir: Path) -> str:
     return re.sub(r'(src)=(["\'])([^"\']+)\2', repl, html)
 
 
-def render_case_html(case: Case, reason: str | None) -> str:
+def add_figure_captions(html: str) -> str:
+    """단독 이미지를 <figure>로 감싸고 alt 텍스트를 캡션으로 노출한다.
+
+    markdown은 `![설명](src)`를 <p><img alt="설명" ...></p>로만 만들어서
+    alt가 화면에 안 보인다. 그림 밑에 설명이 찍히도록 바꾼다.
+    """
+
+    def repl(m: re.Match) -> str:
+        img = re.search(r"<img[^>]*>", m.group(0)).group(0)
+        alt_m = re.search(r'alt="([^"]*)"', img)
+        alt = alt_m.group(1) if alt_m else ""
+        caption = f"<figcaption>{alt}</figcaption>" if alt.strip() else ""
+        return f"<figure>{img}{caption}</figure>"
+
+    return re.sub(r"<p>\s*<img[^>]*>\s*</p>", repl, html)
+
+
+def number_sections(html: str, index: int) -> str:
+    """본문 섹션(<h2>)을 <h3>로 낮추고 'N.M' 번호를 붙인다."""
+    counter = [0]
+
+    def repl(m: re.Match) -> str:
+        counter[0] += 1
+        return f"<h3>{index}.{counter[0]} {m.group(1)}</h3>"
+
+    return re.sub(r"<h2>(.*?)</h2>", repl, html, flags=re.DOTALL)
+
+
+def render_case_html(case: Case, index: int, reason: str | None) -> str:
     m = case.meta
     body_html = md.markdown(case.body, extensions=MD_EXTENSIONS)
     body_html = rewrite_relative_srcs(body_html, case.path.parent)
+    body_html = add_figure_captions(body_html)
+    body_html = number_sections(body_html, index)
 
     tags = (m.get("domain") or []) + (m.get("skills") or [])
     tags_html = "".join(f"<span>{t}</span>" for t in tags)
@@ -269,7 +303,7 @@ def render_case_html(case: Case, reason: str | None) -> str:
     return f"""
 <div class="case">
   <div class="case-header">
-    <h2>{m.get('title', m.get('id'))}</h2>
+    <h2>{index}. {m.get('title', m.get('id'))}</h2>
     <div class="case-meta">{m.get('project', '')} · {m.get('role', '')} · {m.get('period', '')}</div>
     <div class="case-tags">{tags_html}</div>
     {reason_html}
@@ -332,7 +366,7 @@ def cmd_render(args) -> int:
 
     case_htmls = []
     toc_items = []
-    for entry in entries:
+    for index, entry in enumerate(entries, start=1):
         case_id = entry["id"] if isinstance(entry, dict) else entry
         reason = entry.get("reason") if isinstance(entry, dict) else None
         case = load_case_by_id(case_id)
@@ -343,8 +377,11 @@ def cmd_render(args) -> int:
             )
         for w in warnings:
             print(f"  ! [{case_id}] {w}")
-        case_htmls.append(render_case_html(case, reason))
-        toc_items.append(f"<li>{case.meta.get('title')}</li>")
+        case_htmls.append(render_case_html(case, index, reason))
+        toc_items.append(
+            f'<li><span class="toc-num">{index}.</span>'
+            f'<span class="toc-title">{case.meta.get("title")}</span></li>'
+        )
 
     template = (TEMPLATES_DIR / "portfolio.md").read_text(encoding="utf-8")
     style = (TEMPLATES_DIR / "style.css").read_text(encoding="utf-8")
