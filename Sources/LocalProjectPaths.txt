@@ -1,5 +1,0 @@
-- Dogong 프로젝트 로컬 디렉토리 : D:\Workbench\Projects\UnrealProjects\Dogong
-- CopyMaple2 프로젝트 (메이플스토리2 모작) 로컬 디렉토리 : D:\Workbench\Projects\CopyMaple2
-- CopyTrickster 프로젝트 (트릭스터 모작)  로컬 디렉토리 : D:\Workbench\Projects\Trickster\CopyTrickster-main
-- RTChess 프로젝트 로컬 디렉토리 : D:\Workbench\Projects\UnrealProjects\RTChess_5_7
-- Project_DX11_PluckySquire 프로젝트 (견습기사모험기 모작) 로컬 디렉토리 : D:\Workbench\Projects\Project_DX11_PluckySquire

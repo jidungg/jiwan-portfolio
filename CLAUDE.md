@@ -36,15 +36,23 @@
 
 ## 외부 소스 참고 규칙
 
-`Sources/URLs.txt`(GitHub·Notion 링크)와 `Sources/LocalProjectPaths.txt`(로컬 프로젝트
-경로)가 사례 재료의 출처 목록이다. 사례 작성 시 다음을 지킨다.
+`Sources/`에는 두 종류의 참고 자료가 들어온다.
 
-- **GitHub URL을 1차 출처로 쓴다.** `LocalProjectPaths.txt`의 경로는 이 PC에서만
-  유효해서 다른 PC에서 세션을 열면 못 읽는다. 로컬 경로는 GitHub에 없는 최신 변경을
-  확인할 때만 보조로 쓴다. (예외: `Trickster` 로컬 폴더는 git 저장소가 아니라
-  압축 해제된 스냅샷이다 — 진짜 출처는 `github.com/jidungg/CopyTrickster`.)
-- **협업 프로젝트는 기여 범위를 사례에 명시한다.** `Untitled-Forge/Dogong`(팀 프로젝트),
-  `smileJiro/Project_DX11_PluckySquire`(협업자 계정 — 팀원·외부인)에서 사례를 쓸 때는
+- **다른 포트폴리오 문서** — 기존 PDF·Notion 링크. 목록은
+  [`Sources/Portfolios.md`](Sources/Portfolios.md). 톤·구성 참고와 사실 확인용이며,
+  그대로 베끼지 않는다.
+- **프로젝트 소스** — 로컬 디렉토리 또는 GitHub 원격 레포. 목록은
+  [`Sources/Projects.md`](Sources/Projects.md).
+
+사례 작성 시 다음을 지킨다.
+
+- **프로젝트 소스는 로컬이 있으면 로컬을 우선 참고하고, 없으면 GitHub로 폴백한다.**
+  이 PC에는 로컬 경로가 있어 최신 미푸시 변경까지 볼 수 있지만, 다른 PC에서 세션을
+  열면 로컬 경로가 없을 수 있다 — 그럴 땐 자동으로 `Projects.md`의 GitHub URL을 쓴다.
+  (예외: `CopyTrickster`의 로컬 폴더는 git 저장소가 아니라 압축 해제된 스냅샷이라
+  최신인지 불확실하다 — `Projects.md`에 표시된 대로 GitHub 쪽을 우선한다.)
+- **협업 프로젝트는 기여 범위를 사례에 명시한다.** `Projects.md`에 ⚠ 표시된
+  `Dogong`(팀 프로젝트), `Project_DX11_PluckySquire`(협업자 계정)에서 사례를 쓸 때는
   본인이 담당한 부분과 그렇지 않은 부분을 본문에 구분해서 쓴다. 팀 성과를 개인 성과로
   뭉뚱그리지 않는다.
 - **Notion 이미지는 서명 URL이라 몇 분 내 만료된다.** 사례에 쓸 이미지는 발견 즉시
@@ -63,6 +71,8 @@
 | `Applications/Archive/` | 과거 지원 이력 |
 | `Assets/` | 사례에 들어가는 이미지 |
 | `Sources/` | 원본 자료. 읽기 전용 |
+| `Sources/Portfolios.md` | 참고용 기존 포트폴리오 문서(PDF·Notion) 목록 |
+| `Sources/Projects.md` | 프로젝트별 로컬·GitHub 소스 색인 (로컬 우선, 없으면 GitHub) |
 | `tools/build.py` | 조립·렌더·형식 검증 스크립트 |
 
 ## 작업 진입점
