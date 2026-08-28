@@ -7,3 +7,6 @@ desktop.ini
 __pycache__/
 *.pyc
 .venv/
+
+# 원본 zip (같은 내용이 압축 해제된 폴더로 들어가 있음)
+Sources/*.zip
