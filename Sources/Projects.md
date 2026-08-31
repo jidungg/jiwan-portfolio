@@ -42,3 +42,11 @@
 - 로컬: `D:\Workbench\Projects\UnrealProjects\Dogong`
 - GitHub: https://github.com/Untitled-Forge/Dogong (private)
 - ⚠ 팀 프로젝트. 사례 작성 시 본인이 담당한 부분을 명시할 것.
+
+## NifSkope (개조본 — nif → .effmodel 익스포터)
+
+- 로컬: `D:\Workbench\Libraries\NifSkope\nifskope`
+- GitHub: 없음 (업스트림 오픈소스의 로컬 개조본)
+- 개조 내용: `src/niftobinary.cpp`·`src/niftobinary.h` 추가,
+  `src/nifskope.cpp`의 `NifSkope::load()` 후킹, `NifSkope.pro`에 등록
+- CopyMaple2의 `.effmodel` 에셋을 생성하는 툴. 관련 사례: `nif-to-effmodel`

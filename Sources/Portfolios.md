@@ -105,6 +105,16 @@ Shipgend 이벤트 시스템 설명서까지 합치면 **세 프로젝트에 걸
   **주의**: 페이지 안 이미지가 S3 서명 URL이라 몇 분 내 만료된다. 사례에 쓸 이미지는
   발견 즉시 `Assets/`에 다운로드해서 저장한다.
 
+- **Real Time Chess (Hyper Chess 모작)**
+  https://geode-practice-6ee.notion.site/Real-Time-Chess-Hyper-Chess-8189a490f3d8831b8bfb81bdeb73b2a7
+  `RTChess` 프로젝트 페이지. 개발 인원·기간·환경, 시연 영상, 그리고 **문제 해결 사례
+  2건이 문제 상황 → 해결 과정 → 결과 → 핵심 코드 순으로 정리돼 있다.**
+  - *네트워크 레플리케이션 최적화* — 기력 복제 빈도, 클라이언트 예측, `PendingLocalConsume`·
+    `ConfirmedConsumeSeq` 도입 경위. → 사례 `energy-client-prediction`의 근거.
+  - *체스 보드 인스턴싱* — ISM 적용과 Box 컴포넌트 통합. DrawCall·컴포넌트 수 실측 있음.
+    아직 사례로 쓰지 않음.
+  **주의**: 위와 같이 이미지가 S3 서명 URL이라 몇 분 내 만료된다.
+
 ## 블로그 — 뚝딱뚝딱 (Tistory, 필명 `codal96`)
 
 https://ddukddaksudal.tistory.com
