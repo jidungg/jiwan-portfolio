@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 import argparse
+import html
 import platform
 import re
 import shutil
@@ -290,6 +291,17 @@ def number_sections(html: str, index: int) -> str:
     return re.sub(r"<h2>(.*?)</h2>", repl, html, flags=re.DOTALL)
 
 
+def first_sentence(text: str) -> str:
+    """summary의 첫 문장만 뽑는다 (목차 부제용).
+
+    마침표 뒤에 공백이 오는 지점에서만 자른다. '14.9μs'·'.animevt'처럼
+    숫자·확장자 안의 마침표에서 끊기지 않게 하려는 것이다. 끊을 곳이 없으면
+    (마침표 없이 끝나는 한 문장짜리 summary) 전체를 그대로 돌려준다.
+    """
+    parts = re.split(r"(?<=\.)\s", text.strip(), maxsplit=1)
+    return parts[0].strip()
+
+
 def render_case_html(case: Case, index: int, reason: str | None) -> str:
     m = case.meta
     body_html = md.markdown(case.body, extensions=MD_EXTENSIONS)
@@ -300,16 +312,27 @@ def render_case_html(case: Case, index: int, reason: str | None) -> str:
     tags = (m.get("domain") or []) + (m.get("skills") or [])
     tags_html = "".join(f"<span>{t}</span>" for t in tags)
 
+    # summary를 'N.0 한 줄 요약' 섹션으로 배경 앞에 세운다. 원문에 &·< 가 섞여도
+    # 깨지지 않도록 직접 f-string에 넣지 않고 markdown 변환을 거친다.
+    summary = (m.get("summary") or "").strip()
+    if summary:
+        para = md.markdown(summary, extensions=MD_EXTENSIONS)
+        para = para.replace("<p>", '<p class="case-summary">', 1)
+        summary_html = f'<h3>{index}.0 한 줄 요약</h3>' + para
+    else:
+        summary_html = ""
+
     reason_html = f'<p class="case-reason"><em>{reason}</em></p>' if reason else ""
 
     return f"""
 <div class="case">
   <div class="case-header">
     <h2>{index}. {m.get('title', m.get('id'))}</h2>
-    <div class="case-meta">{m.get('project', '')} · {m.get('role', '')} · {m.get('period', '')}</div>
+    <div class="case-meta">{m.get('project', '')} · {m.get('period', '')}</div>
     <div class="case-tags">{tags_html}</div>
     {reason_html}
   </div>
+  {summary_html}
   {body_html}
 </div>
 """.strip()
@@ -380,9 +403,13 @@ def cmd_render(args) -> int:
         for w in warnings:
             print(f"  ! [{case_id}] {w}")
         case_htmls.append(render_case_html(case, index, reason))
+        lead = first_sentence(case.meta.get("summary") or "")
+        lead_html = f'<span class="toc-lead">{html.escape(lead)}</span>' if lead else ""
         toc_items.append(
             f'<li><span class="toc-num">{index}.</span>'
-            f'<span class="toc-title">{case.meta.get("title")}</span></li>'
+            f'<span class="toc-text">'
+            f'<span class="toc-title">{case.meta.get("title")}</span>{lead_html}'
+            f'</span></li>'
         )
 
     template = (TEMPLATES_DIR / "portfolio.md").read_text(encoding="utf-8")
