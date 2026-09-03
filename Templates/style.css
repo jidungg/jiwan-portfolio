@@ -167,6 +167,21 @@ figcaption {
   text-align: center;
 }
 
+/* 빈 줄 없이 연속으로 쓴 이미지들 — 한 행에 나란히 */
+.figure-row {
+  display: flex;
+  gap: 8pt;
+  align-items: flex-start;
+  margin: 10pt 0;
+  page-break-inside: avoid;
+}
+
+.figure-row figure {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+}
+
 /* 목차 */
 .toc ul {
   list-style: none;

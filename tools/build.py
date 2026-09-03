@@ -264,20 +264,30 @@ def rewrite_relative_srcs(html: str, base_dir: Path) -> str:
 
 
 def add_figure_captions(html: str) -> str:
-    """단독 이미지를 <figure>로 감싸고 alt 텍스트를 캡션으로 노출한다.
+    """이미지를 <figure>로 감싸고 alt 텍스트를 캡션으로 노출한다.
 
     markdown은 `![설명](src)`를 <p><img alt="설명" ...></p>로만 만들어서
     alt가 화면에 안 보인다. 그림 밑에 설명이 찍히도록 바꾼다.
+
+    빈 줄 없이 연속으로 쓴 이미지들은 markdown이 <p> 하나에 몰아넣는다.
+    그 경우 .figure-row로 감싸 가로로 나란히 세운다. 빈 줄로 띄우면
+    <p>가 나뉘므로 지금까지처럼 세로로 쌓인다.
     """
 
-    def repl(m: re.Match) -> str:
-        img = re.search(r"<img[^>]*>", m.group(0)).group(0)
+    def make_figure(img: str) -> str:
         alt_m = re.search(r'alt="([^"]*)"', img)
         alt = alt_m.group(1) if alt_m else ""
         caption = f"<figcaption>{alt}</figcaption>" if alt.strip() else ""
         return f"<figure>{img}{caption}</figure>"
 
-    return re.sub(r"<p>\s*<img[^>]*>\s*</p>", repl, html)
+    def repl(m: re.Match) -> str:
+        imgs = re.findall(r"<img[^>]*>", m.group(1))
+        figures = "".join(make_figure(i) for i in imgs)
+        if len(imgs) == 1:
+            return figures
+        return f'<div class="figure-row">{figures}</div>'
+
+    return re.sub(r"<p>\s*((?:<img[^>]*>\s*)+)</p>", repl, html)
 
 
 def number_sections(html: str, index: int) -> str:
