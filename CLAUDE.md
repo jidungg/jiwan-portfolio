@@ -72,8 +72,8 @@
   본인이 담당한 부분과 그렇지 않은 부분을 본문에 구분해서 쓴다. 팀 성과를 개인 성과로
   뭉뚱그리지 않는다.
 - **Notion 이미지는 서명 URL이라 몇 분 내 만료된다.** 사례에 쓸 이미지는 발견 즉시
-  `Assets/`에 다운로드해 저장하고, 사례에는 그 로컬 경로만 남긴다. 만료되는 외부 URL을
-  `sources`에 그대로 남기지 않는다.
+  그 사례의 폴더(`Cases/<slug>/<slug>_설명.png`)에 다운로드해 저장하고, 사례에는
+  파일명만 남긴다. 만료되는 외부 URL을 `sources`에 그대로 남기지 않는다.
 
 ## 사례 작성 스타일
 
@@ -90,7 +90,7 @@
 - `sources`에 절대경로나 줄 번호를 적지 않는다. 경로는 `Sources/Projects.md`가
   관리하고, 줄 번호는 다음 커밋에 어긋난다. 함수·클래스 이름이나 커밋 해시로
   가리킨다.
-- `Sources/Portfolios.md`에 관련 이미지가 있으면 적극 활용해 `Assets/`에 받아
+- `Sources/Portfolios.md`에 관련 이미지가 있으면 적극 활용해 사례 폴더에 받아
   사용한다.
 
 상세 절차는 [`Templates/case.md`](Templates/case.md)와
@@ -100,13 +100,12 @@
 
 | 경로 | 용도 |
 |---|---|
-| `Cases/*.md` | 사례 라이브러리 (핵심 자산) |
+| `Cases/<slug>/` | 사례 1건 = 폴더 1개. 본문 `<slug>.md`와 거기 붙는 이미지가 같이 산다 |
 | `Cases/INDEX.md` | 사례 색인. `tools/build.py index`로 자동 생성 — 직접 편집 금지 |
 | `Templates/case.md` | 사례 작성 템플릿 |
 | `Templates/portfolio.md`, `Templates/style.css` | 최종 문서 골격·스타일 |
 | `Applications/<날짜-회사-포지션>/` | JD·manifest.yaml·완성된 PDF |
 | `Applications/Archive/` | 과거 지원 이력 |
-| `Assets/` | 사례에 들어가는 이미지 |
 | `Sources/` | 원본 자료. 읽기 전용 |
 | `Sources/Portfolios.md` | 참고용 기존 포트폴리오 문서(PDF·Notion) 목록 |
 | `Sources/Projects.md` | 프로젝트별 로컬·GitHub 소스 색인 (로컬 우선, 없으면 GitHub) |

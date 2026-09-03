@@ -1,6 +1,6 @@
 # 사례 후보 목록
 
-`Cases/*.md`로 쓸 수 있는 문제 해결 사례 후보를 프로젝트별로 모아둔 목록이다.
+`Cases/<slug>/<slug>.md`로 쓸 수 있는 문제 해결 사례 후보를 프로젝트별로 모아둔 목록이다.
 특정 JD를 위한 문서가 아니라, **다음에 `/new-case`를 돌릴 때 "뭘 쓸지" 고르는
 출발점**으로 쓴다.
 
@@ -98,7 +98,7 @@
 
 ### 1. 그리드 큐브맵 Raycast에 3D DDA 도입 `[계측 있음]` — 작성 완료
 
-`Cases/raycast-3d-dda.md`. 근거: `c4abf02`, Notion 최적화 문서 2.2절.
+`Cases/raycast-3d-dda/raycast-3d-dda.md`. 근거: `c4abf02`, Notion 최적화 문서 2.2절.
 
 ### 2. 지형 컬링 모드 3종(NONE / PER_CELL / OCTREE) 비교·계측 `[계측 있음]`
 
@@ -158,7 +158,7 @@
 
 ### 6. 빌드 아이템 아이콘을 오프스크린 렌더로 생성 — **35번에 흡수됨**
 
-`Cases/housing-map-serialization.md`의 "건설 아이템 489종과 아이콘" 절에 들어갔다.
+`Cases/housing-map-serialization/housing-map-serialization.md`의 "건설 아이템 489종과 아이콘" 절에 들어갔다.
 문제 정의("489종을 UI에서 구분·선택하게 해야 한다")가 하우징과 이어져서 따로
 떼면 배경이 사라진다. **단독 사례로 다시 쓰지 않는다.**
 
@@ -172,7 +172,7 @@
 
 ### 35. 하우징(건축) 시스템 — 작성 완료
 
-`Cases/housing-map-serialization.md`. 6번(아이콘 오프스크린 렌더)을 흡수했다.
+`Cases/housing-map-serialization/housing-map-serialization.md`. 6번(아이콘 오프스크린 렌더)을 흡수했다.
 아래는 작성 당시의 조사 메모.
 
 - 근거: `17db49a`(맵 피킹, BuilderBird 소환), `38cebca`(블록 설치),
@@ -699,7 +699,7 @@ jiwan 29 + jidungg 3 / seul 3 / smileJiro 2, 최초 커밋 `22f0770eb`도 본인
   애니메이션 종료 콜백과 엮이면서 "점프 상태로 멈추는 현상" 같은 버그가 나왔다.
 - Shipgend 46번, CopyMaple2 `MonsterAnimStateMachine`, 55번(보스 FSM 16종)까지
   합치면 **상태 머신을 네 번 짰다.** 그중 이 항목만 회고가 문서화돼 있다.
-- **`Cases/player-state-machine.md`로 작성됨 (2026-08-27).** 코드에서 추가로 확인된 것:
+- **`Cases/player-state-machine/player-state-machine.md`로 작성됨 (2026-08-27).** 코드에서 추가로 확인된 것:
   팀원(`smileJiro`)이 개발 막바지에 `BackRoll`·`Pull`(2025-03-17)·`Mojam`(2025-03-15)
   세 상태를 직접 추가했다(확장성 근거) / `CPlayer` 헤더의 `Get_`·`Set_`·`Is_` 접근자가
   80개를 넘는다 / `CTransition`·`Condition`이 `30525fcf2`(2025-01-17)에 구현돼 있으나
@@ -716,7 +716,7 @@ jiwan 29 + jidungg 3 / seul 3 / smileJiro 2, 최초 커밋 `22f0770eb`도 본인
     너무 힘들었던 기억이 있어서 다른 방식으로"* 했고, 하다 보니 *"MapleStory2 방식의
     장점만 가져오면 좋겠다"* 고 생각해서 옮겨 왔지만 **"그냥 하려다가 말았다."**
   - → **53번의 '대안 비교'가 상상이 아니라 두 프로젝트에 걸친 실제 경험이 됐다.**
-    `Cases/player-state-machine.md`에 반영 완료(2026-08-27).
+    `Cases/player-state-machine/player-state-machine.md`에 반영 완료(2026-08-27).
   - **디버깅이 어려웠던 이유 (사용자 확인, 2026-08-27) — 채워졌다.** 전이가 잘 되는지
     보려면 `CState::Check_Transition()` / `CState::Check_SubTransition()` /
     `CTransition::CheckConditions()`에 중단점을 걸어야 하는데, 이 함수들이
@@ -770,7 +770,7 @@ jiwan 29 + jidungg 3 / seul 3 / smileJiro 2, 최초 커밋 `22f0770eb`도 본인
   기능(텍스처 교체 / 이동 단계)의 분리다.** 53번의 개선 방향과 연결되지 않는다.
 
 **결론: 53번은 "문제를 진단하고 개선 방향까지 정리했다"까지가 사실이고, 그 선에서
-닫는다.** `Cases/player-state-machine.md`도 그렇게 썼다(회고에서 RTChess 문단 제거,
+닫는다.** `Cases/player-state-machine/player-state-machine.md`도 그렇게 썼다(회고에서 RTChess 문단 제거,
 2026-08-27).
 
 ⚠ **교훈 — 코드 모양이 비슷하다고 의도가 같지 않다.** 베이스/파생 + 두 개의 enum이라는
@@ -1469,7 +1469,7 @@ ResourceMonitor 시기와 정확히 겹치는 짧은 디버깅 노트들이다. 
 
 ## 34. 생성형 AI 개발 워크플로우 구축 (CopyMaple2 / RTChess / Dogong 공통) — 작성 완료
 
-> **작성 완료 (2026-08-27) → `Cases/build-verification-skill.md`**
+> **작성 완료 (2026-08-27) → `Cases/build-verification-skill/build-verification-skill.md`**
 > 범위를 **빌드 검증 스킬(build-test)** 중심으로 좁혀서 썼다.
 >
 > **⚠ 아래 근거 목록에 귀속 오류가 있었다.** `devlog` 시스템(README·FORMAT·CORE·
@@ -1481,7 +1481,7 @@ ResourceMonitor 시기와 정확히 겹치는 짧은 디버깅 노트들이다. 
 > 에디터 Python 원격 실행(`e000c643`), 메모리뱅크(`7c6fea3e`·`d6b35a61`),
 > glossary 최초 도입(`3ae30748`), Git 워크플로우 문서·브랜치 스킬(2026-04-27).
 >
-> **메모리 뱅크는 별도 사례로 분리했다 → `Cases/ai-memory-bank.md` (2026-08-27).**
+> **메모리 뱅크는 별도 사례로 분리했다 → `Cases/ai-memory-bank/ai-memory-bank.md` (2026-08-27).**
 > 실패 사례다. 블로그 https://ddukddaksudal.tistory.com/206 에 본인이 쓴 문제점
 > 4가지가 있어 판단·회고를 그대로 쓸 수 있었다. 접은 이유는 "문제점이 많고 앞으로도
 > 관리가 안 될 것 같아서"이고, 장르 전환은 계기일 뿐 이유가 아니다(사용자 확인).

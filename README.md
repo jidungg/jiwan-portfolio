@@ -20,10 +20,9 @@ Chrome 또는 Edge가 자동으로 안 잡히면 `CHROME_PATH` 환경변수로 �
 ## 구성
 
 ```
-Cases/                 문제 해결 사례 라이브러리 (핵심 자산)
+Cases/<slug>/          사례 1건 = 폴더 1개 (본문 <slug>.md + 거기 붙는 이미지)
 Templates/             사례·포트폴리오 템플릿
 Applications/          지원별 JD·manifest·완성 PDF, 과거 지원 이력(Archive/)
-Assets/                사례에 들어가는 이미지
 Sources/               원본 자료 (읽기 전용)
 tools/build.py         조립·렌더·검증 스크립트
 .claude/commands/      /new-case, /critique-case, /audit, /build

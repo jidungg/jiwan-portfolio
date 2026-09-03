@@ -30,7 +30,9 @@ Portfolio/
 ├─ docs/design.md             # 이 문서
 ├─ Cases/                     # 사례 라이브러리 (핵심 자산)
 │   ├─ INDEX.md               #   전체 목록·태그 (build.py가 생성)
-│   └─ <slug>.md              #   사례 1건 = 파일 1개
+│   └─ <slug>/                #   사례 1건 = 폴더 1개
+│       ├─ <slug>.md          #     본문
+│       └─ <slug>_*.png       #     본문에 붙는 이미지·다이어그램
 ├─ Templates/
 │   ├─ case.md                #   사례 작성 템플릿
 │   ├─ portfolio.md           #   포트폴리오 골격 (표지·서문·목차·맺음)
@@ -41,7 +43,6 @@ Portfolio/
 │       ├─ jd.md              #   JD 원문 (근거 보존)
 │       ├─ manifest.yaml      #   선택한 사례·순서·선택 이유
 │       └─ portfolio.pdf      #   최종 산출물 (커밋함)
-├─ Assets/                    # 사례에 들어가는 이미지·다이어그램
 ├─ Sources/                   # 원본 자료. 읽기 전용
 ├─ tools/build.py             # 조립·렌더
 └─ .claude/commands/          # 슬래시 커맨드 (저장소에 커밋 → 다중 PC 동기화)

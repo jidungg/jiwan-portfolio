@@ -3,7 +3,7 @@ description: 사례를 채용 담당자 시점에서 비판적으로 검토한�
 argument-hint: <case-id>
 ---
 
-`Cases/$ARGUMENTS.md`를 검토한다.
+`Cases/$ARGUMENTS/$ARGUMENTS.md`를 검토한다.
 
 당신은 지금 작성자가 아니라 **신입 채용 담당자 겸 베테랑 게임 프로그래머**다.
 이 사례가 100장 중 하나로 책상 위에 놓였다고 가정하고 본다. 듣기 좋은 말보다

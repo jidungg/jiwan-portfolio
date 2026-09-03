@@ -1,6 +1,6 @@
 <!--
   포트폴리오 골격 템플릿. build.py가 이 파일을 읽어 아래 플레이스홀더를
-  manifest.yaml과 선택된 Cases/*.md 내용으로 치환한다.
+  manifest.yaml과 선택된 Cases/<slug>/<slug>.md 내용으로 치환한다.
 
   플레이스홀더:
     {{TITLE}}         - 표지 제목

@@ -14,7 +14,7 @@ argument-hint: <사례 주제 또는 한 줄 설명>
 
 2. **관련 이미지를 챙긴다** — `Sources/Portfolios.md`(기존 포트폴리오 PDF·Notion
    문서)에 이 사례와 관련된 스크린샷·그래프·다이어그램이 있으면 발견 즉시
-   `Assets/<slug>_설명.png`로 받아 저장해둔다. Notion 이미지 URL은 몇 분 내
+   `Cases/<slug>/<slug>_설명.png`로 받아 저장해둔다. Notion 이미지 URL은 몇 분 내
    만료되니 미루지 않는다.
 
 3. **질문으로 캐낸다** — 아래 항목을 채울 만큼만 묻는다. **모든 항목을 억지로
@@ -34,10 +34,11 @@ argument-hint: <사례 주제 또는 한 줄 설명>
      쓰지도 않는다. 측정하지 않은 항목은 "측정 안 함"이라고 솔직히 적는다.
    - **회고** — 지금 다시 하면 무엇을 바꿀 것인가
 
-4. **id/slug을 정한다** — 영문 kebab-case. `Cases/<slug>.md`가 파일명이 된다.
+4. **id/slug을 정한다** — 영문 kebab-case. `Cases/<slug>/` 폴더를 만들고 그 안에
+   `<slug>.md`를 쓴다. 이 사례에 붙는 이미지도 전부 같은 폴더에 둔다.
 
 5. **`Templates/case.md`를 복사해 채운다.**
-   - frontmatter의 `id`는 slug와 반드시 일치시킨다.
+   - frontmatter의 `id`는 slug와 반드시 일치시킨다 (폴더명·파일명과도 같아야 한다).
    - **frontmatter에 metrics 필드를 만들지 않는다** — 숫자는 본문 '대안 비교'
      섹션에만 적는다.
    - **본문은 '-습니다'체로, 동료에게 설명하듯 친절하게 쓴다.** 딱딱한

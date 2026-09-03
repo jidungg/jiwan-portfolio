@@ -2,7 +2,7 @@
 """
 포트폴리오 제작소 빌드 도구.
 
-이 스크립트는 판단하지 않는다. Cases/*.md와 manifest.yaml에 적힌 대로만
+이 스크립트는 판단하지 않는다. Cases/<slug>/<slug>.md와 manifest.yaml에 적힌 대로만
 조립·검증·렌더링한다. 어떤 사례를 고를지, 왜 고를지는 여기서 결정하지 않는다
 (그건 /build 커맨드 안에서 Claude와 사용자가 한다).
 
@@ -93,7 +93,7 @@ def load_all_cases() -> list[Case]:
     if not CASES_DIR.exists():
         return []
     cases = []
-    for p in sorted(CASES_DIR.glob("*.md")):
+    for p in sorted(CASES_DIR.glob("*/*.md")):
         if p.name.upper() == "INDEX.MD":
             continue
         cases.append(parse_case_file(p))
@@ -155,6 +155,8 @@ def validate_case(case: Case) -> tuple[list[str], list[str]]:
     expected_id = case.path.stem
     if meta.get("id") and meta.get("id") != expected_id:
         errors.append(f"id({meta.get('id')})가 파일명({expected_id})과 다릅니다")
+    if case.path.parent.name != expected_id:
+        errors.append(f"사례 폴더명({case.path.parent.name})이 파일명({expected_id})과 다릅니다")
 
     for img in find_image_refs(case.body):
         if img.startswith(("http://", "https://", "data:")):
